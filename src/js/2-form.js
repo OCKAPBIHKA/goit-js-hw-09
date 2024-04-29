@@ -1,37 +1,46 @@
-'use strict';
-const form = document.querySelector('.feedback-form');
-const emailInput = form.querySelector('input[name="email"]');
-const messageInput = form.querySelector('textarea[name="message"]');
+const addFont = document.head.insertAdjacentHTML(
+  'beforeend',
+  '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"></link>'
+);
 
-form.addEventListener('input', function () {
+const formEl = document.querySelector('.feedback-form');
+
+const inputEvent = formEl.addEventListener('input', event => {
   const formData = {
-    email: emailInput.value.trim(),
-    message: messageInput.value.trim(),
+    email: formEl.elements.email.value.trim(),
+    message: formEl.elements.message.value.trim(),
   };
   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 });
 
-window.addEventListener('load', function () {
-  const savedFormData =
-    JSON.parse(localStorage.getItem('feedback-form-state')) || {};
-  emailInput.value = savedFormData.email || '';
-  messageInput.value = savedFormData.message || '';
+const checkStorage = window.addEventListener('load', () => {
+  const storedData = localStorage.getItem('feedback-form-state');
+  if (storedData) {
+    const { email, message } = JSON.parse(storedData);
+    formEl.elements.email.value = email;
+    formEl.elements.message.value = message;
+  }
 });
 
-form.addEventListener('submit', function (event) {
-  event.preventDefault();
-
-  const formData = {
-    email: emailInput.value.trim(),
-    message: messageInput.value.trim(),
-  };
-
-  if (formData.email && formData.message) {
-    console.log(formData);
+const submitForm = formEl.addEventListener('submit', event => {
+  const emailValue = formEl.elements.email.value.trim();
+  const messageValue = formEl.elements.message.value.trim();
+  if (
+    emailValue.includes('@') &&
+    emailValue.includes('.') &&
+    emailValue &&
+    messageValue
+  ) {
+    event.preventDefault();
+    const formData = {
+      email: formEl.elements.email.value.trim(),
+      message: formEl.elements.message.value.trim(),
+    };
     localStorage.removeItem('feedback-form-state');
-    emailInput.value = '';
-    messageInput.value = '';
+    formEl.reset();
+    console.log(formData);
   } else {
-    alert('Please fill in all fields before submitting.');
+    event.preventDefault();
+    alert('Type valid email and message');
   }
 });
